@@ -13,6 +13,7 @@ intents.members = True
 intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
+bot.start_time = None  # Track bot uptime
 
 @tasks.loop(hours=1)
 async def stale_order_check():
@@ -39,6 +40,7 @@ async def stale_order_check():
 
 @bot.event
 async def on_ready():
+    bot.start_time = datetime.datetime.now(datetime.timezone.utc)
     print(f"✅ Bot logged in as {bot.user} ({bot.user.id})")
 
     from cogs.panel import OrderPanelView
@@ -68,6 +70,7 @@ async def load_extensions():
     await bot.load_extension("cogs.queue")
     await bot.load_extension("cogs.builder")
     await bot.load_extension("cogs.review")
+    await bot.load_extension("cogs.utilities")
 
 async def main():
     async with bot:
