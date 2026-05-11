@@ -63,38 +63,31 @@ class UtilityCog(commands.Cog):
 
     @app_commands.command(name="help", description="Lists all available commands")
     async def help(self, interaction: discord.Interaction):
-        # Get all slash commands from the bot
-        commands = self.bot.tree.get_commands(guild=interaction.guild)
+        try:
+            commands = self.bot.tree.global_commands
+        except Exception:
+            commands = []
         
         if not commands:
-            commands = self.bot.tree.global_commands
+            await interaction.response.send_message("❌ No commands available.", ephemeral=True)
+            return
         
-        # Group commands by cog
-        command_info = []
-        for cmd in commands:
-            if hasattr(cmd, 'callback'):
-                # Get the cog that owns this command
-                cog = cmd.cog
-                cog_name = cog.__class__.__name__ if cog else "Unknown"
-                cmd_desc = cmd.description or "No description"
-                command_info.append((cog_name, cmd.name, cmd_desc))
-        
-        # Sort by command name
-        command_info.sort(key=lambda x: x[1])
-        
-        # Build embed fields
         embed = discord.Embed(
             title="📚 Command List",
             description="Here are all available slash commands:",
             color=0x5865F2
         )
         
-        for cog_name, cmd_name, cmd_desc in command_info:
-            embed.add_field(
-                name=f"/{cmd_name}",
-                value=cmd_desc,
-                inline=False
-            )
+        for cmd in commands:
+            try:
+                cmd_desc = cmd.description or "No description"
+                embed.add_field(
+                    name=f"/{cmd.name}",
+                    value=cmd_desc,
+                    inline=False
+                )
+            except Exception:
+                pass
         
         await interaction.response.send_message(embed=embed)
 

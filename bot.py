@@ -66,11 +66,26 @@ async def on_ready():
         stale_order_check.start()
 
 async def load_extensions():
-    await bot.load_extension("cogs.panel")
-    await bot.load_extension("cogs.queue")
-    await bot.load_extension("cogs.builder")
-    await bot.load_extension("cogs.review")
-    await bot.load_extension("cogs.utilities")
+    try:
+        await bot.load_extension("cogs.panel")
+    except Exception as e:
+        logging.error(f"Failed to load cogs.panel: {e}")
+    try:
+        await bot.load_extension("cogs.queue")
+    except Exception as e:
+        logging.error(f"Failed to load cogs.queue: {e}")
+    try:
+        await bot.load_extension("cogs.builder")
+    except Exception as e:
+        logging.error(f"Failed to load cogs.builder: {e}")
+    try:
+        await bot.load_extension("cogs.review")
+    except Exception as e:
+        logging.error(f"Failed to load cogs.review: {e}")
+    try:
+        await bot.load_extension("cogs.utilities")
+    except Exception as e:
+        logging.error(f"Failed to load cogs.utilities: {e}")
 
 async def main():
     async with bot:
