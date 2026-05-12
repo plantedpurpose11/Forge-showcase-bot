@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import datetime
+import zoneinfo
 
 class UtilityCog(commands.Cog):
     def __init__(self, bot):
@@ -30,7 +31,9 @@ class UtilityCog(commands.Cog):
         parts.append(f"{seconds} second{'' if seconds == 1 else 's'}")
 
         uptime_str = ", ".join(parts)
-        timestamp = self.bot.start_time.strftime("%Y-%m-%d %H:%M:%S UTC")
+        est = zoneinfo.ZoneInfo("America/New_York")
+        start_time_est = self.bot.start_time.astimezone(est)
+        timestamp = start_time_est.strftime("%Y-%m-%d %I:%M:%S %p ET")
 
         embed = discord.Embed(
             title="⏱️ Bot Uptime",
