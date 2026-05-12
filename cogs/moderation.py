@@ -43,7 +43,10 @@ class ModerationCog(commands.Cog):
         # Preserve current activity when changing status
         current_activity = self.bot.activity
         
-        await self.bot.change_presence(status=status_map.get(status, discord.Status.online), activity=current_activity)
+        if current_activity:
+            await self.bot.change_presence(status=status_map.get(status, discord.Status.online), activity=current_activity)
+        else:
+            await self.bot.change_presence(status=status_map.get(status, discord.Status.online))
         
         status_name = status.replace("invisible", "offline").replace("dnd", "Do Not Disturb")
         await interaction.response.send_message(f"✅ Bot status changed to **{status_name}**.", ephemeral=True)
@@ -74,7 +77,10 @@ class ModerationCog(commands.Cog):
         current_status = self.bot.status
         
         activity = discord.Activity(type=activity_map.get(activity_type, discord.ActivityType.playing), name=message)
-        await self.bot.change_presence(status=current_status, activity=activity)
+        if current_status:
+            await self.bot.change_presence(status=current_status, activity=activity)
+        else:
+            await self.bot.change_presence(activity=activity)
         
         await interaction.response.send_message(f"✅ Status message changed to **{message}** ({activity_type}).", ephemeral=True)
 
