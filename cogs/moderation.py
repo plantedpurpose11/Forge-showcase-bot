@@ -3,9 +3,14 @@ from discord import app_commands
 from discord.ext import commands
 from utils import checks
 
+# Default activity to use when none exists
+DEFAULT_ACTIVITY = discord.Activity(type=discord.ActivityType.playing, name="🏰 Taking showcase base orders")
+
 class ModerationCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self._last_status = discord.Status.online
+        self._last_activity = DEFAULT_ACTIVITY
     
     @app_commands.command(name="say", description="Makes the bot repeat what you type")
     @app_commands.describe(message="The message for the bot to say", channel="The channel to send the message in (defaults to current channel)")
@@ -40,15 +45,13 @@ class ModerationCog(commands.Cog):
             "invisible": discord.Status.invisible,
         }
 
-        new_status = status_map.get(status, discord.Status.online)
+        self._last_status = status_map.get(status, discord.Status.online)
         
-        # Only change status, preserve existing activity
-        activity = self.bot.activity
-        if activity:
-            await self.bot.change_presence(status=new_status, activity=activity)
-        else:
-            default_activity = discord.Activity(type=discord.ActivityType.playing, name="🏰 Taking showcase base orders")
-            await self.bot.change_presence(status=new_status, activity=default_activity)
+        # Use saved activity, not current bot activity
+        activity = self.bot.activity or self._last_activity
+        self._last_activity = activity
+        
+        await self.bot.change_presence(status=self._last_status, activity=activity)
         
         status_name = status.replace("invisible", "offline").replace("dnd", "Do Not Disturb")
         await interaction.response.send_message(f"✅ Bot status changed to **{status_name}**.", ephemeral=True)
@@ -75,14 +78,13 @@ class ModerationCog(commands.Cog):
             "streaming": discord.ActivityType.streaming,
         }
 
-        new_activity = discord.Activity(type=activity_map.get(activity_type, discord.ActivityType.playing), name=message)
+        self._last_activity = discord.Activity(type=activity_map.get(activity_type, discord.ActivityType.playing), name=message)
         
-        # Only change activity, preserve existing status
-        status = self.bot.status
-        if status:
-            await self.bot.change_presence(status=status, activity=new_activity)
-        else:
-            await self.bot.change_presence(status=discord.Status.online, activity=new_activity)
+        # Use saved status, not current bot status
+        status = self.bot.status or self._last_status
+        self._last_status = status
+        
+        await self.bot.change_presence(status=status, activity=self._last_activity)
         
         await interaction.response.send_message(f"✅ Status message changed to **{message}** ({activity_type}).", ephemeral=True)
 
