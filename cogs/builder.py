@@ -152,6 +152,14 @@ class BuilderCog(commands.Cog):
         await interaction.response.send_message(
             f"✅ Closing ticket for order #{order['orderId']} in 5 seconds.\nReason: {reason}"
         )
+        
+        user = interaction.guild.get_member(int(order["userId"]))
+        if user:
+            try:
+                await user.send(f"Hey there <@{order['userId']}>, your ticket for a showcase base has been closed.\nReason: {reason}")
+            except discord.Forbidden:
+                pass
+        
         await asyncio.sleep(5)
         await interaction.channel.delete(reason=f"Order #{order['orderId']} closed by {interaction.user}: {reason}")
 
