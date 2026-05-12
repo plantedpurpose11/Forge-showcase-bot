@@ -82,7 +82,7 @@ class UtilityCog(commands.Cog):
             ("complete", "Marks an order as complete"),
             ("closeticket", "Closes the current order ticket"),
             ("removeorder", "Removes an order"),
-            ("say", "Makes the bot repeat what you type (mod only)"),
+            ("say", "Makes the bot repeat what you type (mod/admin only)"),
         ]
         
         for cmd_name, cmd_desc in commands:

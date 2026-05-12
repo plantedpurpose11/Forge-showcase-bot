@@ -7,3 +7,9 @@ def is_builder_or_mod(member: discord.Member) -> bool:
 
 def is_mod(member: discord.Member) -> bool:
     return config.MODERATION_ROLE_ID in {r.id for r in member.roles}
+
+def is_admin(member: discord.Member) -> bool:
+    return config.ADMIN_ROLE_ID in {r.id for r in member.roles}
+
+def is_mod_or_admin(member: discord.Member) -> bool:
+    return is_mod(member) or is_admin(member)

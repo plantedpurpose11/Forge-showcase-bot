@@ -10,8 +10,8 @@ class ModerationCog(commands.Cog):
     @app_commands.command(name="say", description="Makes the bot repeat what you type")
     @app_commands.describe(message="The message for the bot to say", channel="The channel to send the message in (defaults to current channel)")
     async def say(self, interaction: discord.Interaction, message: str, channel: discord.TextChannel = None):
-        if not checks.is_mod(interaction.user):
-            await interaction.response.send_message("❌ Only moderators can use this command.", ephemeral=True)
+        if not checks.is_mod_or_admin(interaction.user):
+            await interaction.response.send_message("❌ Only moderators or administrators can use this command.", ephemeral=True)
             return
 
         target_channel = channel or interaction.channel
