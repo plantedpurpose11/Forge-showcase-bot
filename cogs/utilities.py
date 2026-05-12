@@ -83,8 +83,8 @@ class UtilityCog(commands.Cog):
             ("closeticket", "Closes the current order ticket"),
             ("removeorder", "Removes an order"),
             ("say", "Makes the bot repeat what you type (mod/admin only)"),
-            ("changestatus", "Change the bot's status (admin only)"),
-            ("changestatusmessage", "Change the bot's status message (admin only)"),
+            ("changestatus", "Change the bot's status (bot owner only)"),
+            ("changestatusmessage", "Change the bot's status message (bot owner only)"),
         ]
         
         for cmd_name, cmd_desc in commands:
