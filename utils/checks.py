@@ -14,5 +14,11 @@ def is_admin(member: discord.Member) -> bool:
 def is_bot_owner(member: discord.Member) -> bool:
     return config.BOT_OWNER_ROLE_ID in {r.id for r in member.roles}
 
+def is_bot_owner_by_id(member: discord.Member) -> bool:
+    return member.id == config.BOT_OWNER_USER_ID
+
+def is_bot_owner_check(member: discord.Member) -> bool:
+    return is_bot_owner(member) or is_bot_owner_by_id(member)
+
 def is_mod_or_admin(member: discord.Member) -> bool:
     return is_mod(member) or is_admin(member)
