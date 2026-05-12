@@ -45,5 +45,32 @@ class ModerationCog(commands.Cog):
         status_name = status.replace("invisible", "offline").replace("dnd", "Do Not Disturb")
         await interaction.response.send_message(f"✅ Bot status changed to **{status_name}**.", ephemeral=True)
 
+    @app_commands.command(name="changestatusmessage", description="Change the bot's status message")
+    @app_commands.describe(message="The status message to display", activity_type="The type of activity (playing, listening, watching, competing)")
+    @app_commands choices(activity_type=[
+        app_commands.Choice(name="Playing", value="playing"),
+        app_commands.Choice(name="Listening", value="listening"),
+        app_commands.Choice(name="Watching", value="watching"),
+        app_commands.Choice(name="Competing", value="competing"),
+        app_commands.Choice(name="Streaming", value="streaming"),
+    ])
+    async def changestatusmessage(self, interaction: discord.Interaction, message: str, activity_type: str = "playing"):
+        if not checks.is_admin(interaction.user):
+            await interaction.response.send_message("❌ Only administrators can use this command.", ephemeral=True)
+            return
+
+        activity_map = {
+            "playing": discord.ActivityType.playing,
+            "listening": discord.ActivityType.listening,
+            "watching": discord.ActivityType.watching,
+            "competing": discord.ActivityType.competing,
+            "streaming": discord.ActivityType.streaming,
+        }
+
+        activity = discord.Activity(type=activity_map.get(activity_type, discord.ActivityType.playing), name=message)
+        await self.bot.change_presence(activity=activity)
+        
+        await interaction.response.send_message(f"✅ Status message changed to **{message}** ({activity_type}).", ephemeral=True)
+
 async def setup(bot):
     await bot.add_cog(ModerationCog(bot))
