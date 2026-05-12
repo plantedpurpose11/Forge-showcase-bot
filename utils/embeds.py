@@ -109,7 +109,8 @@ def completed_dm_embed(order: dict) -> discord.Embed:
     embed.add_field(name="Order ID", value=f"#{order['orderId']}", inline=True)
     embed.add_field(name="Townhall Level", value=f"TH{order['townhallLevel']}", inline=True)
     embed.add_field(name="Built by", value=order['builderUsername'], inline=True)
-    embed.add_field(name="Base Link", value=order.get('baseLink', 'N/A'), inline=False)
+    link_text = f"[🔗 Click here]({order['baseLink']})" if order.get('baseLink') else "No link provided"
+    embed.add_field(name="Base Link", value=link_text, inline=False)
     if order.get('imageUrl'):
         embed.set_image(url=order['imageUrl'])
     embed.set_footer(text="The Showbase Forge")
