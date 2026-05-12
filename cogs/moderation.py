@@ -42,10 +42,13 @@ class ModerationCog(commands.Cog):
 
         new_status = status_map.get(status, discord.Status.online)
         
-        # Get current activity to preserve it
-        activity = self.bot.activity or discord.Activity(type=discord.ActivityType.playing, name="with my friends")
-        
-        await self.bot.change_presence(status=new_status, activity=activity)
+        # Only change status, preserve existing activity
+        activity = self.bot.activity
+        if activity:
+            await self.bot.change_presence(status=new_status, activity=activity)
+        else:
+            default_activity = discord.Activity(type=discord.ActivityType.playing, name="🏰 Taking showcase base orders")
+            await self.bot.change_presence(status=new_status, activity=default_activity)
         
         status_name = status.replace("invisible", "offline").replace("dnd", "Do Not Disturb")
         await interaction.response.send_message(f"✅ Bot status changed to **{status_name}**.", ephemeral=True)
@@ -72,12 +75,14 @@ class ModerationCog(commands.Cog):
             "streaming": discord.ActivityType.streaming,
         }
 
-        activity = discord.Activity(type=activity_map.get(activity_type, discord.ActivityType.playing), name=message)
+        new_activity = discord.Activity(type=activity_map.get(activity_type, discord.ActivityType.playing), name=message)
         
-        # Get current status to preserve it
-        status = self.bot.status or discord.Status.online
-        
-        await self.bot.change_presence(status=status, activity=activity)
+        # Only change activity, preserve existing status
+        status = self.bot.status
+        if status:
+            await self.bot.change_presence(status=status, activity=new_activity)
+        else:
+            await self.bot.change_presence(status=discord.Status.online, activity=new_activity)
         
         await interaction.response.send_message(f"✅ Status message changed to **{message}** ({activity_type}).", ephemeral=True)
 
