@@ -29,7 +29,7 @@ class ModerationCog(commands.Cog):
         app_commands.Choice(name="Offline", value="invisible"),
     ])
     async def changestatus(self, interaction: discord.Interaction, status: str):
-        if not checks.is_bot_owner_check(interaction.user):
+        if not checks.is_bot_owner(interaction.user):
             await interaction.response.send_message("❌ Only bot owners can use this command.", ephemeral=True)
             return
 
@@ -55,7 +55,7 @@ class ModerationCog(commands.Cog):
         app_commands.Choice(name="Streaming", value="streaming"),
     ])
     async def changestatusmessage(self, interaction: discord.Interaction, message: str, activity_type: str = "playing"):
-        if not checks.is_bot_owner_check(interaction.user):
+        if not checks.is_bot_owner(interaction.user):
             await interaction.response.send_message("❌ Only bot owners can use this command.", ephemeral=True)
             return
 
