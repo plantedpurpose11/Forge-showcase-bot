@@ -125,11 +125,9 @@ class BuilderCog(commands.Cog):
         user = interaction.guild.get_member(int(order["userId"]))
         if user:
             try:
-                dm_file = await attachment.to_file() if attachment else None
                 await user.send(
                     content=f"<@{order['userId']}>",
-                    embed=embeds.completed_dm_embed(order),
-                    file=dm_file
+                    embed=embeds.completed_dm_embed(order)
                 )
                 await user.send(f"🌟 Loved your base? We'd appreciate a review!\nType **/review** in <#{config.BOT_COMMANDS_CHANNEL_ID}> and use Order ID **#{order['orderId']}**")
             except discord.Forbidden:
