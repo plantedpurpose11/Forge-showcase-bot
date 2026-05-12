@@ -6,7 +6,7 @@ from utils import checks
 class ModerationCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
+    
     @app_commands.command(name="say", description="Makes the bot repeat what you type")
     @app_commands.describe(message="The message for the bot to say", channel="The channel to send the message in (defaults to current channel)")
     async def say(self, interaction: discord.Interaction, message: str, channel: discord.TextChannel = None):
@@ -40,13 +40,12 @@ class ModerationCog(commands.Cog):
             "invisible": discord.Status.invisible,
         }
 
-        # Preserve current activity when changing status
-        current_activity = self.bot.activity
+        new_status = status_map.get(status, discord.Status.online)
         
-        if current_activity:
-            await self.bot.change_presence(status=status_map.get(status, discord.Status.online), activity=current_activity)
-        else:
-            await self.bot.change_presence(status=status_map.get(status, discord.Status.online))
+        # Get current activity to preserve it
+        activity = self.bot.activity or discord.Activity(type=discord.ActivityType.playing, name="with my friends")
+        
+        await self.bot.change_presence(status=new_status, activity=activity)
         
         status_name = status.replace("invisible", "offline").replace("dnd", "Do Not Disturb")
         await interaction.response.send_message(f"✅ Bot status changed to **{status_name}**.", ephemeral=True)
@@ -73,14 +72,12 @@ class ModerationCog(commands.Cog):
             "streaming": discord.ActivityType.streaming,
         }
 
-        # Preserve current status when changing activity
-        current_status = self.bot.status
-        
         activity = discord.Activity(type=activity_map.get(activity_type, discord.ActivityType.playing), name=message)
-        if current_status:
-            await self.bot.change_presence(status=current_status, activity=activity)
-        else:
-            await self.bot.change_presence(activity=activity)
+        
+        # Get current status to preserve it
+        status = self.bot.status or discord.Status.online
+        
+        await self.bot.change_presence(status=status, activity=activity)
         
         await interaction.response.send_message(f"✅ Status message changed to **{message}** ({activity_type}).", ephemeral=True)
 
