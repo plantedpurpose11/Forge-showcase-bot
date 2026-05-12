@@ -108,11 +108,9 @@ class BuilderCog(commands.Cog):
         completed_channel = interaction.guild.get_channel(config.COMPLETED_ORDERS_CHANNEL_ID)
         
         if ticket_channel:
-            ticket_file = await attachment.to_file() if attachment else None
             await ticket_channel.send(
                 content=f"<@{order['userId']}> your showcase base is on its way — check your DMs! 🏰",
-                embed=embeds.completed_ticket_embed(order),
-                file=ticket_file
+                embed=embeds.completed_ticket_embed(order)
             )
         
         await asyncio.sleep(3)

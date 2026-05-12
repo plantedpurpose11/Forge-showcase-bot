@@ -83,6 +83,8 @@ def completed_ticket_embed(order: dict) -> discord.Embed:
     embed.add_field(name="Townhall Level", value=f"TH{order['townhallLevel']}", inline=True)
     embed.add_field(name="Built by", value=order['builderUsername'], inline=True)
     embed.add_field(name="Completed", value=f"<t:{_get_unix(order['completedAt'])}:F>", inline=False)
+    if order.get('imageUrl'):
+        embed.set_image(url=order['imageUrl'])
     embed.set_footer(text="The Showbase Forge")
     return embed
 
