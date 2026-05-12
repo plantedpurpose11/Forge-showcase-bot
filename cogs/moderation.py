@@ -22,7 +22,7 @@ class ModerationCog(commands.Cog):
 
     @app_commands.command(name="changestatus", description="Change the bot's status")
     @app_commands.describe(status="The status to set the bot to")
-    @app_commands choices(status=[
+    @app_commands.choices(status=[
         app_commands.Choice(name="Online", value="online"),
         app_commands.Choice(name="Idle", value="idle"),
         app_commands.Choice(name="Do Not Disturb", value="dnd"),
@@ -47,7 +47,7 @@ class ModerationCog(commands.Cog):
 
     @app_commands.command(name="changestatusmessage", description="Change the bot's status message")
     @app_commands.describe(message="The status message to display", activity_type="The type of activity (playing, listening, watching, competing)")
-    @app_commands choices(activity_type=[
+    @app_commands.choices(activity_type=[
         app_commands.Choice(name="Playing", value="playing"),
         app_commands.Choice(name="Listening", value="listening"),
         app_commands.Choice(name="Watching", value="watching"),
