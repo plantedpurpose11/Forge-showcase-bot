@@ -64,7 +64,7 @@ class UtilityCog(commands.Cog):
     @app_commands.command(name="help", description="Lists all available commands")
     async def help(self, interaction: discord.Interaction):
         try:
-            commands = self.bot.tree.global_commands
+            commands = list(self.bot.tree.global_commands)
         except Exception:
             commands = []
         
