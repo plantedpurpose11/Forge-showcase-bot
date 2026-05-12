@@ -63,33 +63,28 @@ class UtilityCog(commands.Cog):
 
     @app_commands.command(name="help", description="Lists all available commands")
     async def help(self, interaction: discord.Interaction):
-        # Get all slash commands from the bot
-        commands = self.bot.tree.get_commands(guild=interaction.guild)
-        
-        if not commands:
-            commands = self.bot.tree.global_commands
-        
-        # Group commands by cog
-        command_info = []
-        for cmd in commands:
-            if hasattr(cmd, 'callback'):
-                # Get the cog that owns this command
-                cog = cmd.cog
-                cog_name = cog.__class__.__name__ if cog else "Unknown"
-                cmd_desc = cmd.description or "No description"
-                command_info.append((cog_name, cmd.name, cmd_desc))
-        
-        # Sort by command name
-        command_info.sort(key=lambda x: x[1])
-        
-        # Build embed fields
         embed = discord.Embed(
             title="📚 Command List",
             description="Here are all available slash commands:",
             color=0x5865F2
         )
         
-        for cog_name, cmd_name, cmd_desc in command_info:
+        # List known commands from this bot
+        commands = [
+            ("uptime", "Shows how long the bot has been online since its last restart"),
+            ("ping", "Checks the bot's latency"),
+            ("help", "Lists all available commands"),
+            ("queue", "Shows the current showcase base order queue"),
+            ("myorders", "Shows your order history"),
+            ("review", "Leaves a review for a completed order"),
+            ("panel", "Posts the order panel"),
+            ("start", "Starts working on an order"),
+            ("complete", "Marks an order as complete"),
+            ("closeticket", "Closes the current order ticket"),
+            ("removeorder", "Removes an order"),
+        ]
+        
+        for cmd_name, cmd_desc in commands:
             embed.add_field(
                 name=f"/{cmd_name}",
                 value=cmd_desc,
