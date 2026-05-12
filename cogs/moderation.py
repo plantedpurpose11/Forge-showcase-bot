@@ -16,7 +16,7 @@ class ModerationCog(commands.Cog):
 
         target_channel = channel or interaction.channel
         
-        await target_channel.send(f"💬 **{interaction.user.display_name} said:**\n{message}")
+        await target_channel.send(message)
         
         await interaction.response.send_message(f"✅ Message sent to {target_channel.mention}.", ephemeral=True)
 
