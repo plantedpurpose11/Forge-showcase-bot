@@ -93,8 +93,8 @@ def completed_public_embed(order: dict) -> discord.Embed:
         title="✅ Showcase Base Completed",
         color=0x5516a5
     )
-    embed.add_field(name="Base for", value=order["username"], inline=True)
-    embed.add_field(name="Base by", value=order["builderUsername"], inline=True)
+    embed.add_field(name="Base For", value=order["username"], inline=True)
+    embed.add_field(name="Base By", value=order["builderUsername"], inline=True)
     if order.get('imageUrl'):
         embed.set_image(url=order['imageUrl'])
     embed.set_footer(text="The Showbase Forge")
