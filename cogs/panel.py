@@ -77,7 +77,14 @@ class OrderModal(discord.ui.Modal, title='📋 Order a Base at Jack\'s Showbase 
         
         await interaction.response.defer(ephemeral=True)
         
-        category = interaction.guild.get_channel(config.ORDER_TICKET_CATEGORY_ID)
+        category = interaction.guild.get_category(config.ORDER_TICKET_CATEGORY_ID)
+        if category is None:
+            # Fallback: fetch the category directly if not in cache
+            try:
+                category = await interaction.guild.fetch_channel(config.ORDER_TICKET_CATEGORY_ID)
+            except discord.NotFound:
+                await interaction.followup.send("❌ Order ticket category not found. Please check ORDER_TICKET_CATEGORY_ID in config.", ephemeral=True)
+                return
         overwrites = {
             interaction.guild.default_role: discord.PermissionOverwrite(read_messages=False),
             interaction.user: discord.PermissionOverwrite(read_messages=True, send_messages=True),
