@@ -15,6 +15,9 @@ BOT_OWNER_USER_ID = 123456789012345678  # Set your actual bot owner user ID here
 CUSTOMER_ROLE_ID = 1497506714625249350
 ORDER_TICKET_CATEGORY_ID = 1497405135708487702
 
+# Ticket log channel - set via /ticketlogset command
+TICKET_LOG_CHANNEL_ID = None
+
 GUILD_ID = None
 
 try:
