@@ -1,5 +1,6 @@
 {
   "supportedTownhallLevels": [14, 15, 16, 17, 18],
   "maxActiveOrdersPerUser": 5,
-  "dailyOrderLimit": 25
+  "dailyOrderLimit": 25,
+  "ticketLogChannelId": null
 }

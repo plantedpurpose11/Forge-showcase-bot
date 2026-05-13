@@ -1,7 +1,10 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from utils import checks
+from utils import checks, json_db
+import json
+import asyncio
+import datetime
 
 # Default activity to use when none exists
 DEFAULT_ACTIVITY = discord.Activity(type=discord.ActivityType.playing, name="🏰 Taking showcase base orders")
@@ -87,6 +90,83 @@ class ModerationCog(commands.Cog):
         await self.bot.change_presence(status=status, activity=self._last_activity)
         
         await interaction.response.send_message(f"✅ Status message changed to **{message}** ({activity_type}).", ephemeral=True)
+
+    @app_commands.command(name="ticketlogset", description="Set the channel where ticket transcripts will be logged")
+    @app_commands.describe(channel="The channel to log ticket transcripts to")
+    async def ticketlogset(self, interaction: discord.Interaction, channel: discord.TextChannel):
+        if not checks.is_mod_or_admin(interaction.user):
+            await interaction.response.send_message("❌ Only moderators or administrators can use this command.", ephemeral=True)
+            return
+
+        guild_settings = json_db.load_guild_settings()
+        guild_settings["ticketLogChannelId"] = channel.id
+        json_db.save_guild_settings(guild_settings)
+
+        await interaction.response.send_message(f"✅ Ticket transcripts will now be logged to {channel.mention}.", ephemeral=True)
+
+    @app_commands.command(name="ticketlog", description="Logs the current ticket transcript to the log channel")
+    async def ticketlog(self, interaction: discord.Interaction):
+        if not checks.is_builder_or_mod(interaction.user):
+            await interaction.response.send_message("❌ Only base builders or moderators can use this command.", ephemeral=True)
+            return
+
+        # Load ticket log channel from settings
+        guild_settings = json_db.load_guild_settings()
+        ticket_log_channel_id = guild_settings.get("ticketLogChannelId")
+
+        if not ticket_log_channel_id:
+            await interaction.response.send_message("❌ No ticket log channel set. Use /ticketlogset to configure one.", ephemeral=True)
+            return
+
+        # Find the order for this channel
+        orders = json_db.load("orders.json", [])
+        order = next((o for o in orders if o.get("channelId") == interaction.channel.id), None)
+
+        if not order:
+            await interaction.response.send_message("❌ This command can only be used inside an order ticket.", ephemeral=True)
+            return
+
+        # Fetch messages from the channel
+        ticket_channel = interaction.channel
+        messages = []
+        async for message in ticket_channel.history(limit=100):
+            messages.append(message)
+
+        # Sort by oldest first
+        messages.reverse()
+
+        # Build the transcript
+        transcript_lines = [f"## Transcript for Order #{order['orderId']} - {order['username']}'s Showcase Base"]
+        transcript_lines.append(f"**Status:** {order['status']}")
+        transcript_lines.append(f"**Townhall Level:** {order['townhallLevel']}")
+        transcript_lines.append(f"**Preferences:** {order.get('preferences', 'None')}")
+        transcript_lines.append(f"**Notes:** {order.get('notes', 'None')}")
+        transcript_lines.append(f"**Builder:** {order.get('builderUsername', 'Not assigned')}")
+        transcript_lines.append("")
+        transcript_lines.append("### Messages:")
+
+        for msg in messages:
+            timestamp = msg.created_at.strftime("%Y-%m-%d %H:%M")
+            author = msg.author.display_name
+            content = msg.content or "[embed/attachment]"
+            transcript_lines.append(f"**{timestamp}** - {author}: {content}")
+
+        transcript = "\n".join(transcript_lines)
+
+        # Send to log channel
+        log_channel = interaction.guild.get_channel(ticket_log_channel_id)
+        if log_channel:
+            # Split into chunks if too long
+            if len(transcript) > 2000:
+                chunks = [transcript[i:i+2000] for i in range(0, len(transcript), 2000)]
+                for chunk in chunks:
+                    await log_channel.send(f"```\n{chunk}\n```")
+            else:
+                await log_channel.send(f"```\n{transcript}\n```")
+
+            await interaction.response.send_message(f"✅ Transcript logged to {log_channel.mention}.", ephemeral=True)
+        else:
+            await interaction.response.send_message("❌ Could not find the ticket log channel.", ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(ModerationCog(bot))

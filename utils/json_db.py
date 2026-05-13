@@ -20,3 +20,18 @@ def save(filename: str, data):
     os.makedirs(DATA_DIR, exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
+
+def load_guild_settings():
+    """Load guild settings from GuildSettings.json"""
+    if not os.path.exists("GuildSettings.json"):
+        return {}
+    try:
+        with open("GuildSettings.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        return {}
+
+def save_guild_settings(data):
+    """Save guild settings to GuildSettings.json"""
+    with open("GuildSettings.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)

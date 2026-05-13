@@ -6,6 +6,58 @@ import datetime
 from utils import json_db, embeds, checks
 import config
 
+async def save_ticket_transcript(interaction: discord.Interaction, order: dict):
+    """Save ticket transcript to the log channel if configured."""
+    guild_settings = json_db.load_guild_settings()
+    ticket_log_channel_id = guild_settings.get("ticketLogChannelId")
+    
+    if not ticket_log_channel_id:
+        return
+    
+    ticket_channel = interaction.guild.get_channel(order.get("channelId"))
+    if not ticket_channel:
+        return
+    
+    # Fetch messages from the channel
+    messages = []
+    async for message in ticket_channel.history(limit=100):
+        messages.append(message)
+    
+    # Sort by oldest first
+    messages.reverse()
+    
+    # Build the transcript
+    transcript_lines = [f"## Transcript for Order #{order['orderId']} - {order['username']}'s Showcase Base"]
+    transcript_lines.append(f"**Status:** {order['status']}")
+    transcript_lines.append(f"**Townhall Level:** {order['townhallLevel']}")
+    transcript_lines.append(f"**Preferences:** {order.get('preferences', 'None')}")
+    transcript_lines.append(f"**Notes:** {order.get('notes', 'None')}")
+    transcript_lines.append(f"**Builder:** {order.get('builderUsername', 'Not assigned')}")
+    if order.get("baseLink"):
+        transcript_lines.append(f"**Base Link:** {order['baseLink']}")
+    transcript_lines.append("")
+    transcript_lines.append("### Messages:")
+    
+    for msg in messages:
+        timestamp = msg.created_at.strftime("%Y-%m-%d %H:%M")
+        author = msg.author.display_name
+        content = msg.content or "[embed/attachment]"
+        transcript_lines.append(f"**{timestamp}** - {author}: {content}")
+    
+    transcript = "\n".join(transcript_lines)
+    
+    # Send to log channel
+    log_channel = interaction.guild.get_channel(ticket_log_channel_id)
+    if log_channel:
+        # Split into chunks if too long
+        if len(transcript) > 2000:
+            chunks = [transcript[i:i+2000] for i in range(0, len(transcript), 2000)]
+            for chunk in chunks:
+                await log_channel.send(f"```\n{chunk}\n```")
+        else:
+            await log_channel.send(f"```\n{transcript}\n```")
+
+
 class BuilderCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -112,6 +164,8 @@ class BuilderCog(commands.Cog):
                 content=f"<@{order['userId']}> your showcase base is on its way — check your DMs! 🏰",
                 embed=embeds.completed_ticket_embed(order)
             )
+            # Save transcript before completing
+            await save_ticket_transcript(interaction, order)
         
         await asyncio.sleep(3)
         
@@ -146,6 +200,10 @@ class BuilderCog(commands.Cog):
         if not order:
             await interaction.response.send_message("❌ This command can only be used inside an order ticket.", ephemeral=True)
             return
+
+        # Save transcript before closing
+        order["status"] = "closed"
+        await save_ticket_transcript(interaction, order)
 
         await interaction.response.send_message(
             f"✅ Closing ticket for order #{order['orderId']} in 5 seconds.\nReason: {reason}"
