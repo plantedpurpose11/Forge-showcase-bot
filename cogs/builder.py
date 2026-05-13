@@ -260,5 +260,55 @@ class BuilderCog(commands.Cog):
                 
         await interaction.response.send_message(f"✅ Order #{order_id} removed.", ephemeral=True)
 
+    @app_commands.command(name="addtoticket", description="Add a user to the current order ticket")
+    @app_commands.describe(user="The user to add to the ticket")
+    async def addtoticket(self, interaction: discord.Interaction, user: discord.Member):
+        if not checks.is_builder_or_mod(interaction.user):
+            await interaction.response.send_message("❌ Only base builders or moderators can use this command.", ephemeral=True)
+            return
+
+        orders = json_db.load("orders.json", [])
+        order = next((o for o in orders if o.get("channelId") == interaction.channel.id), None)
+
+        if not order:
+            await interaction.response.send_message("❌ This command can only be used inside an order ticket.", ephemeral=True)
+            return
+
+        # Update permissions to allow the user to see the channel
+        overwrites = interaction.channel.overwrites
+        overwrites[user] = discord.PermissionOverwrite(read_messages=True, send_messages=True)
+        await interaction.channel.edit(name=interaction.channel.name, overwrites=overwrites)
+
+        await interaction.response.send_message(f"✅ {user.mention} has been added to this ticket.", ephemeral=True)
+        await interaction.channel.send(f"📥 {user.mention} has been added to this ticket by {interaction.user.mention}.")
+
+    @app_commands.command(name="removefromticket", description="Remove a user from the current order ticket")
+    @app_commands.describe(user="The user to remove from the ticket")
+    async def removefromticket(self, interaction: discord.Interaction, user: discord.Member):
+        if not checks.is_builder_or_mod(interaction.user):
+            await interaction.response.send_message("❌ Only base builders or moderators can use this command.", ephemeral=True)
+            return
+
+        orders = json_db.load("orders.json", [])
+        order = next((o for o in orders if o.get("channelId") == interaction.channel.id), None)
+
+        if not order:
+            await interaction.response.send_message("❌ This command can only be used inside an order ticket.", ephemeral=True)
+            return
+
+        # Don't allow removing the order owner
+        if user.id == int(order["userId"]):
+            await interaction.response.send_message("❌ You cannot remove the order owner from their ticket.", ephemeral=True)
+            return
+
+        # Update permissions to remove access
+        overwrites = interaction.channel.overwrites
+        if user in overwrites:
+            del overwrites[user]
+        await interaction.channel.edit(name=interaction.channel.name, overwrites=overwrites)
+
+        await interaction.response.send_message(f"✅ {user.mention} has been removed from this ticket.", ephemeral=True)
+        await interaction.channel.send(f"📤 {user.mention} has been removed from this ticket by {interaction.user.mention}.")
+
 async def setup(bot):
     await bot.add_cog(BuilderCog(bot))

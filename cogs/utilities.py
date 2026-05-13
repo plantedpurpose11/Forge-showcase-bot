@@ -85,6 +85,8 @@ class UtilityCog(commands.Cog):
             ("complete", "Marks an order as complete"),
             ("closeticket", "Closes the current order ticket"),
             ("removeorder", "Removes an order"),
+            ("addtoticket", "Add a user to the ticket"),
+            ("removefromticket", "Remove a user from the ticket"),
             ("ticketlogset", "Set the ticket log channel (mod/admin only)"),
             ("ticketlog", "Log ticket transcript to log channel"),
             ("say", "Makes the bot repeat what you type (mod/admin only)"),
