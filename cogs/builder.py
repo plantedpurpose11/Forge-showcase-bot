@@ -263,8 +263,8 @@ class BuilderCog(commands.Cog):
     @app_commands.command(name="addtoticket", description="Add a user to the current order ticket")
     @app_commands.describe(user="The user to add to the ticket")
     async def addtoticket(self, interaction: discord.Interaction, user: discord.Member):
-        if not checks.is_builder_or_mod(interaction.user):
-            await interaction.response.send_message("❌ Only base builders or moderators can use this command.", ephemeral=True)
+        if not (checks.is_builder_or_mod(interaction.user) or checks.is_admin(interaction.user)):
+            await interaction.response.send_message("❌ Only builders, moderators, or admins can use this command.", ephemeral=True)
             return
 
         orders = json_db.load("orders.json", [])
@@ -285,8 +285,8 @@ class BuilderCog(commands.Cog):
     @app_commands.command(name="removefromticket", description="Remove a user from the current order ticket")
     @app_commands.describe(user="The user to remove from the ticket")
     async def removefromticket(self, interaction: discord.Interaction, user: discord.Member):
-        if not checks.is_builder_or_mod(interaction.user):
-            await interaction.response.send_message("❌ Only base builders or moderators can use this command.", ephemeral=True)
+        if not (checks.is_builder_or_mod(interaction.user) or checks.is_admin(interaction.user)):
+            await interaction.response.send_message("❌ Only builders, moderators, or admins can use this command.", ephemeral=True)
             return
 
         orders = json_db.load("orders.json", [])
