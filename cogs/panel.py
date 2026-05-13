@@ -97,7 +97,7 @@ class OrderModal(discord.ui.Modal, title='📋 Order a Base at Jack\'s Showbase 
         
         channel = await interaction.guild.create_text_channel(
             name=f"order-{order_id}",
-            category=config.ORDER_TICKET_CATEGORY_ID,
+            category=category,
             overwrites=overwrites,
             topic=f"Order #{order_id} for {interaction.user.display_name}"
         )
