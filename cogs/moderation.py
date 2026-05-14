@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from utils import checks, json_db
+from utils import checks, json_db, helpers
 import json
 import asyncio
 import datetime
@@ -156,13 +156,7 @@ class ModerationCog(commands.Cog):
         # Send to log channel
         log_channel = interaction.guild.get_channel(ticket_log_channel_id)
         if log_channel:
-            # Split into chunks if too long
-            if len(transcript) > 2000:
-                chunks = [transcript[i:i+2000] for i in range(0, len(transcript), 2000)]
-                for chunk in chunks:
-                    await log_channel.send(f"```\n{chunk}\n```")
-            else:
-                await log_channel.send(f"```\n{transcript}\n```")
+            await helpers.safe_send_codeblock(log_channel, transcript)
 
             await interaction.response.send_message(f"✅ Transcript logged to {log_channel.mention}.", ephemeral=True)
         else:
