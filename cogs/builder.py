@@ -49,9 +49,9 @@ async def save_ticket_transcript(interaction: discord.Interaction, order: dict):
     # Send to log channel
     log_channel = interaction.guild.get_channel(ticket_log_channel_id)
     if log_channel:
-        # Split into chunks if too long
-        if len(transcript) > 2000:
-            chunks = [transcript[i:i+2000] for i in range(0, len(transcript), 2000)]
+        # Split into chunks if too long (1990 to account for ```\n...\n``` wrapper)
+        if len(transcript) > 1990:
+            chunks = [transcript[i:i+1990] for i in range(0, len(transcript), 1990)]
             for chunk in chunks:
                 await log_channel.send(f"```\n{chunk}\n```")
         else:
