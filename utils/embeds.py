@@ -2,6 +2,8 @@ import discord
 import config
 from datetime import datetime
 
+FOOTER_ICON_URL = "https://raw.githubusercontent.com/plantedpurpose11/Forge-showcase-bot/main/assets/bot-avatar.png"
+
 def _get_unix(iso_str: str) -> int:
     """Helper to convert ISO string to Unix timestamp."""
     if not iso_str: return 0
@@ -25,7 +27,7 @@ def panel_embed() -> discord.Embed:
             "• This is a **showcase base** service only"
         )
     )
-    embed.set_footer(text="The Showbase Forge")
+    embed.set_footer(text="The Showbase Forge", icon_url=FOOTER_ICON_URL)
     return embed
 
 def order_received_embed(order: dict) -> discord.Embed:
@@ -40,7 +42,7 @@ def order_received_embed(order: dict) -> discord.Embed:
     embed.add_field(name="Status", value="⏳ Pending", inline=True)
     embed.add_field(name="Preferences", value=order['preferences'] or "None", inline=False)
     embed.add_field(name="Notes", value=order['notes'] or "None", inline=False)
-    embed.set_footer(text="The Showbase Forge")
+    embed.set_footer(text="The Showbase Forge", icon_url=FOOTER_ICON_URL)
     return embed
 
 def builder_notification_embed(order: dict) -> discord.Embed:
@@ -55,7 +57,7 @@ def builder_notification_embed(order: dict) -> discord.Embed:
     embed.add_field(name="Preferences", value=order['preferences'] or "None", inline=False)
     embed.add_field(name="Notes", value=order['notes'] or "None", inline=False)
     embed.add_field(name="Ordered at", value=f"<t:{_get_unix(order['createdAt'])}:F>", inline=False)
-    embed.set_footer(text="The Showbase Forge")
+    embed.set_footer(text="The Showbase Forge", icon_url=FOOTER_ICON_URL)
     return embed
 
 def order_started_embed(order: dict, builder: discord.Member) -> discord.Embed:
@@ -69,7 +71,7 @@ def order_started_embed(order: dict, builder: discord.Member) -> discord.Embed:
     embed.add_field(name="Townhall Level", value=f"TH{order['townhallLevel']}", inline=True)
     embed.add_field(name="Order ID", value=f"#{order['orderId']}", inline=True)
     embed.add_field(name="Started at", value=f"<t:{_get_unix(order['startedAt'])}:F>", inline=False)
-    embed.set_footer(text="The Showbase Forge")
+    embed.set_footer(text="The Showbase Forge", icon_url=FOOTER_ICON_URL)
     return embed
 
 def completed_ticket_embed(order: dict) -> discord.Embed:
@@ -85,7 +87,7 @@ def completed_ticket_embed(order: dict) -> discord.Embed:
     embed.add_field(name="Completed", value=f"<t:{_get_unix(order['completedAt'])}:F>", inline=False)
     if order.get('imageUrl'):
         embed.set_image(url=order['imageUrl'])
-    embed.set_footer(text="The Showbase Forge")
+    embed.set_footer(text="The Showbase Forge", icon_url=FOOTER_ICON_URL)
     return embed
 
 def completed_public_embed(order: dict) -> discord.Embed:
@@ -97,7 +99,7 @@ def completed_public_embed(order: dict) -> discord.Embed:
     embed.add_field(name="Base by:", value=order["builderUsername"], inline=True)
     if order.get('imageUrl'):
         embed.set_image(url=order['imageUrl'])
-    embed.set_footer(text="The Showbase Forge")
+    embed.set_footer(text="The Showbase Forge", icon_url=FOOTER_ICON_URL)
     return embed
 
 def completed_dm_embed(order: dict) -> discord.Embed:
@@ -113,7 +115,7 @@ def completed_dm_embed(order: dict) -> discord.Embed:
     embed.add_field(name="Base Link", value=link_text, inline=False)
     if order.get('imageUrl'):
         embed.set_image(url=order['imageUrl'])
-    embed.set_footer(text="The Showbase Forge")
+    embed.set_footer(text="The Showbase Forge", icon_url=FOOTER_ICON_URL)
     return embed
 
 def removed_order_embed(order: dict, reason: str, removed_by: discord.Member) -> discord.Embed:
@@ -125,7 +127,7 @@ def removed_order_embed(order: dict, reason: str, removed_by: discord.Member) ->
     embed.add_field(name="Order ID", value=f"#{order['orderId']}", inline=True)
     embed.add_field(name="Reason", value=reason, inline=False)
     embed.add_field(name="Removed by", value=removed_by.mention, inline=True)
-    embed.set_footer(text="The Showbase Forge")
+    embed.set_footer(text="The Showbase Forge", icon_url=FOOTER_ICON_URL)
     return embed
 
 def queue_embed(active_orders: list) -> discord.Embed:
@@ -148,7 +150,7 @@ def queue_embed(active_orders: list) -> discord.Embed:
             ),
             inline=False
         )
-    embed.set_footer(text="The Showbase Forge")
+    embed.set_footer(text="The Showbase Forge", icon_url=FOOTER_ICON_URL)
     return embed
 
 def myorders_embed(user_orders: list, user: discord.Member) -> discord.Embed:
@@ -165,7 +167,7 @@ def myorders_embed(user_orders: list, user: discord.Member) -> discord.Embed:
             value=f"📌 Status: {order['status'].capitalize()}",
             inline=False
         )
-    embed.set_footer(text="Jack's Showbase Forge")
+    embed.set_footer(text="The Showbase Forge", icon_url=FOOTER_ICON_URL)
     return embed
 
 def review_embed(order: dict, rating: int, remarks: str, reviewer: discord.Member) -> discord.Embed:
@@ -178,7 +180,7 @@ def review_embed(order: dict, rating: int, remarks: str, reviewer: discord.Membe
     embed.add_field(name="Order", value=f"#{order['orderId']} — TH{order['townhallLevel']}", inline=True)
     embed.add_field(name="Built by", value=order['builderUsername'], inline=True)
     embed.add_field(name="Review", value=remarks or "No review provided.", inline=False)
-    embed.set_footer(text="The Showbase Forge")
+    embed.set_footer(text="The Showbase Forge", icon_url=FOOTER_ICON_URL)
     return embed
 
 def stale_order_embed(order: dict) -> discord.Embed:
@@ -191,5 +193,5 @@ def stale_order_embed(order: dict) -> discord.Embed:
     embed.add_field(name="Customer", value=f"<@{order['userId']}>", inline=True)
     embed.add_field(name="Townhall Level", value=f"TH{order['townhallLevel']}", inline=True)
     embed.add_field(name="Waiting since", value=f"<t:{_get_unix(order['createdAt'])}:R>", inline=False)
-    embed.set_footer(text="The Showbase Forge")
+    embed.set_footer(text="The Showbase Forge", icon_url=FOOTER_ICON_URL)
     return embed
