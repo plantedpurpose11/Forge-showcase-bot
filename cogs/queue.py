@@ -19,7 +19,7 @@ class QueueCog(commands.Cog):
         if not active_orders:
             embed = discord.Embed(
                 title="📋 Showcase Base Queue",
-                color=0x5865F2,
+                color=0xffa201,
                 description="✅ The queue is currently empty! Click the order button to be first in line."
             )
             await interaction.response.send_message(embed=embed)

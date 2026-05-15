@@ -12,7 +12,7 @@ def _get_unix(iso_str: str) -> int:
 def panel_embed() -> discord.Embed:
     embed = discord.Embed(
         title="🏰 Cheap Showcase Bases",
-        color=0x5516a5,
+        color=0xffa201,
         description=(
             "Welcome! We build custom Clash of Clans **showcase bases** for you — $4 a base.\n\n"
             "📋 **How it works:**\n"
@@ -33,7 +33,7 @@ def panel_embed() -> discord.Embed:
 def order_received_embed(order: dict) -> discord.Embed:
     embed = discord.Embed(
         title=f"✅ Showcase Base Order Received! — #{order['orderId']}",
-        color=0x00ff88,
+        color=0xffa201,
         description=f"Your order has been received! Our builders have been notified."
     )
     embed.add_field(name="Order ID", value=f"#{order['orderId']}", inline=True)
@@ -48,7 +48,7 @@ def order_received_embed(order: dict) -> discord.Embed:
 def builder_notification_embed(order: dict) -> discord.Embed:
     embed = discord.Embed(
         title=f"📋 New Showcase Base Order — #{order['orderId']}",
-        color=0x5865F2,
+        color=0xffa201,
     )
     embed.add_field(name="Customer", value=f"<@{order['userId']}>", inline=True)
     embed.add_field(name="Townhall Level", value=f"TH{order['townhallLevel']}", inline=True)
@@ -63,7 +63,7 @@ def builder_notification_embed(order: dict) -> discord.Embed:
 def order_started_embed(order: dict, builder: discord.Member) -> discord.Embed:
     embed = discord.Embed(
         title=f"🔨 Order #{order['orderId']} Has Been Started!",
-        color=0xff9900,
+        color=0xffa201,
         description="Your showcase base is now being worked on! You'll receive it via DM as soon as it's complete."
     )
     embed.add_field(name="Customer", value=f"<@{order['userId']}>", inline=True)
@@ -77,7 +77,7 @@ def order_started_embed(order: dict, builder: discord.Member) -> discord.Embed:
 def completed_ticket_embed(order: dict) -> discord.Embed:
     embed = discord.Embed(
         title=f"✅ Showcase Base Completed — Order #{order['orderId']}",
-        color=0x5516a5,
+        color=0xffa201,
         description="Your showcase base has been completed and sent via DM!"
     )
     embed.add_field(name="For", value=f"<@{order['userId']}>", inline=True)
@@ -93,7 +93,7 @@ def completed_ticket_embed(order: dict) -> discord.Embed:
 def completed_public_embed(order: dict) -> discord.Embed:
     embed = discord.Embed(
         title="✅ Showcase Base Completed",
-        color=0x5516a5
+        color=0xffa201
     )
     embed.add_field(name="Base for:", value=order["username"], inline=True)
     embed.add_field(name="Base by:", value=order["builderUsername"], inline=True)
@@ -105,7 +105,7 @@ def completed_public_embed(order: dict) -> discord.Embed:
 def completed_dm_embed(order: dict) -> discord.Embed:
     embed = discord.Embed(
         title="🏰 Your Showcase Base Is Ready!",
-        color=0x5516a5,
+        color=0xffa201,
         description="Thank you for your patience! Your showcase base has been completed."
     )
     embed.add_field(name="Order ID", value=f"#{order['orderId']}", inline=True)
@@ -121,7 +121,7 @@ def completed_dm_embed(order: dict) -> discord.Embed:
 def removed_order_embed(order: dict, reason: str, removed_by: discord.Member) -> discord.Embed:
     embed = discord.Embed(
         title=f"❌ Order Removed — #{order['orderId']}",
-        color=0xfc0303,
+        color=0xffa201,
         description="Unfortunately your order has been removed."
     )
     embed.add_field(name="Order ID", value=f"#{order['orderId']}", inline=True)
@@ -133,7 +133,7 @@ def removed_order_embed(order: dict, reason: str, removed_by: discord.Member) ->
 def queue_embed(active_orders: list) -> discord.Embed:
     embed = discord.Embed(
         title=f"📋 Showcase Base Queue — {len(active_orders)} order(s) waiting",
-        color=0x5865F2,
+        color=0xffa201,
         description="Here's the current order queue. Orders are worked on from top to bottom."
     )
     for i, order in enumerate(active_orders, 1):
@@ -156,7 +156,7 @@ def queue_embed(active_orders: list) -> discord.Embed:
 def myorders_embed(user_orders: list, user: discord.Member) -> discord.Embed:
     embed = discord.Embed(
         title=f"📋 Your Order History — {user.display_name}",
-        color=0x5865F2,
+        color=0xffa201,
         description="All orders you've ever placed with us."
     )
     for order in user_orders[:20]:
@@ -173,7 +173,7 @@ def myorders_embed(user_orders: list, user: discord.Member) -> discord.Embed:
 def review_embed(order: dict, rating: int, remarks: str, reviewer: discord.Member) -> discord.Embed:
     embed = discord.Embed(
         title=f"⭐ Review from {reviewer.display_name}",
-        color=0x5516a5
+        color=0xffa201
     )
     embed.set_thumbnail(url=reviewer.avatar.url if reviewer.avatar else None)
     embed.add_field(name="Rating", value="⭐" * rating, inline=True)
@@ -186,7 +186,7 @@ def review_embed(order: dict, rating: int, remarks: str, reviewer: discord.Membe
 def stale_order_embed(order: dict) -> discord.Embed:
     embed = discord.Embed(
         title="⚠️ Stale Order Alert",
-        color=0xff6600,
+        color=0xffa201,
         description="The following order has been waiting for 24+ hours without being claimed:"
     )
     embed.add_field(name="Order ID", value=f"#{order['orderId']}", inline=True)
