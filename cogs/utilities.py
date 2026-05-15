@@ -37,7 +37,7 @@ class UtilityCog(commands.Cog):
 
         embed = discord.Embed(
             title="⏱️ Bot Uptime",
-            color=0x5865F2
+            color=0xffa201
         )
         embed.add_field(name="Online Since", value=f"`{timestamp}`", inline=False)
         embed.add_field(name="Duration", value=uptime_str, inline=False)
@@ -57,7 +57,7 @@ class UtilityCog(commands.Cog):
 
         embed = discord.Embed(
             title="🏓 Pong!",
-            color=0x2ECC71
+            color=0xffa201
         )
         embed.add_field(name="WebSocket Latency", value=f"`{ws_latency:.2f} ms`", inline=True)
         embed.add_field(name="Response Time", value=f"`{response_time:.2f} ms`", inline=True)
@@ -69,7 +69,7 @@ class UtilityCog(commands.Cog):
         embed = discord.Embed(
             title="📚 Command List",
             description="Here are all available slash commands:",
-            color=0x5865F2
+            color=0xffa201
         )
         
         # List known commands from this bot
