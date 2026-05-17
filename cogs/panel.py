@@ -92,7 +92,7 @@ class OrderModal(discord.ui.Modal, title='📋 Order a Base at Jack\'s Showbase 
             interaction.user: discord.PermissionOverwrite(read_messages=True, send_messages=True),
             interaction.guild.get_role(config.BASE_BUILDER_ROLE_ID): discord.PermissionOverwrite(read_messages=True, send_messages=True),
             interaction.guild.get_role(config.MODERATION_ROLE_ID): discord.PermissionOverwrite(read_messages=True, send_messages=True),
-            interaction.guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True)
+            interaction.guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True, read_message_history=True, manage_messages=True)
         }
         
         channel = await interaction.guild.create_text_channel(

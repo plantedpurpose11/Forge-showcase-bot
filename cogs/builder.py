@@ -6,50 +6,75 @@ import datetime
 from utils import json_db, embeds, checks, helpers
 import config
 
-async def save_ticket_transcript(interaction: discord.Interaction, order: dict):
-    """Save ticket transcript to the log channel if configured."""
+async def save_ticket_transcript(interaction: discord.Interaction, order: dict, channel=None):
+    """Save ticket transcript to the log channel if configured.
+    
+    Args:
+        channel: The ticket channel to read history from. Defaults to interaction.channel.
+    
+    Returns a status string: 'ok', 'no_log_channel', or an error message.
+    """
     guild_settings = json_db.load_guild_settings()
     ticket_log_channel_id = guild_settings.get("ticketLogChannelId")
     
     if not ticket_log_channel_id:
-        return
+        return "no_log_channel"
     
-    ticket_channel = interaction.guild.get_channel(order.get("channelId"))
-    if not ticket_channel:
-        return
+    ticket_channel = channel or interaction.channel
     
-    # Fetch messages from the channel
-    messages = []
-    async for message in ticket_channel.history(limit=100):
-        messages.append(message)
-    
-    # Sort by oldest first
-    messages.reverse()
-    
-    # Build the transcript
-    transcript_lines = [f"## Transcript for Order #{order['orderId']} - {order['username']}'s Showcase Base"]
-    transcript_lines.append(f"**Status:** {order['status']}")
-    transcript_lines.append(f"**Townhall Level:** {order['townhallLevel']}")
-    transcript_lines.append(f"**Preferences:** {order.get('preferences', 'None')}")
-    transcript_lines.append(f"**Notes:** {order.get('notes', 'None')}")
-    transcript_lines.append(f"**Builder:** {order.get('builderUsername', 'Not assigned')}")
-    if order.get("baseLink"):
-        transcript_lines.append(f"**Base Link:** {order['baseLink']}")
-    transcript_lines.append("")
-    transcript_lines.append("### Messages:")
-    
-    for msg in messages:
-        timestamp = msg.created_at.strftime("%Y-%m-%d %H:%M")
-        author = msg.author.display_name
-        content = msg.content or "[embed/attachment]"
-        transcript_lines.append(f"**{timestamp}** - {author}: {content}")
-    
-    transcript = "\n".join(transcript_lines)
-    
-    # Send to log channel
-    log_channel = interaction.guild.get_channel(ticket_log_channel_id)
-    if log_channel:
+    try:
+        # Fetch messages from the channel
+        messages = []
+        async for message in ticket_channel.history(limit=200):
+            messages.append(message)
+        
+        # Sort by oldest first
+        messages.reverse()
+        
+        # Build the transcript
+        transcript_lines = [f"Transcript for Order #{order['orderId']} - {order['username']}'s Showcase Base"]
+        transcript_lines.append(f"Status: {order['status']}")
+        transcript_lines.append(f"Townhall Level: {order['townhallLevel']}")
+        transcript_lines.append(f"Preferences: {order.get('preferences', 'None')}")
+        transcript_lines.append(f"Notes: {order.get('notes', 'None')}")
+        transcript_lines.append(f"Builder: {order.get('builderUsername', 'Not assigned')}")
+        if order.get("baseLink"):
+            transcript_lines.append(f"Base Link: {order['baseLink']}")
+        transcript_lines.append("")
+        transcript_lines.append("--- Messages ---")
+        
+        for msg in messages:
+            timestamp = msg.created_at.strftime("%Y-%m-%d %H:%M")
+            author = msg.author.display_name
+            
+            # Build content from message text, embeds, and attachments
+            parts = []
+            if msg.content:
+                parts.append(msg.content)
+            for embed in msg.embeds:
+                if embed.title:
+                    parts.append(f"[Embed: {embed.title}]")
+                elif embed.description:
+                    desc_preview = embed.description[:100]
+                    parts.append(f"[Embed: {desc_preview}]")
+            for att in msg.attachments:
+                parts.append(f"[Attachment: {att.filename}]")
+            
+            content = " ".join(parts) if parts else "[empty message]"
+            transcript_lines.append(f"[{timestamp}] {author}: {content}")
+        
+        transcript = "\n".join(transcript_lines)
+        
+        # Send to log channel
+        log_channel = interaction.guild.get_channel(ticket_log_channel_id)
+        if not log_channel:
+            return "log_channel_not_found"
+        
         await helpers.safe_send_codeblock(log_channel, transcript)
+        return "ok"
+    except Exception as e:
+        print(f"Error saving transcript: {e}")
+        return f"error: {e}"
 
 
 class BuilderCog(commands.Cog):
@@ -159,7 +184,7 @@ class BuilderCog(commands.Cog):
                 embed=embeds.completed_ticket_embed(order)
             )
             # Save transcript before completing
-            await save_ticket_transcript(interaction, order)
+            await save_ticket_transcript(interaction, order, channel=ticket_channel)
         
         await asyncio.sleep(3)
         
@@ -197,10 +222,20 @@ class BuilderCog(commands.Cog):
 
         # Save transcript before closing
         order["status"] = "closed"
-        await save_ticket_transcript(interaction, order)
+        result = await save_ticket_transcript(interaction, order)
+
+        transcript_note = ""
+        if result == "no_log_channel":
+            transcript_note = "\n⚠️ No ticket log channel set — use `/ticketlogset` to enable transcripts."
+        elif result == "log_channel_not_found":
+            transcript_note = "\n⚠️ Ticket log channel not found — use `/ticketlogset` to reconfigure."
+        elif result and result.startswith("error:"):
+            transcript_note = f"\n⚠️ Failed to save transcript: {result}"
+        elif result == "ok":
+            transcript_note = "\n📋 Transcript saved."
 
         await interaction.response.send_message(
-            f"✅ Closing ticket for order #{order['orderId']} in 5 seconds.\nReason: {reason}"
+            f"✅ Closing ticket for order #{order['orderId']} in 5 seconds.\nReason: {reason}{transcript_note}"
         )
         
         user = interaction.guild.get_member(int(order["userId"]))
