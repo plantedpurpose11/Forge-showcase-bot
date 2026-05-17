@@ -61,7 +61,8 @@ class ReviewModal(discord.ui.Modal, title='⭐ Leave a Review'):
         await asyncio.sleep(0.3)
         
         review_channel = interaction.guild.get_channel(config.REVIEW_CHANNEL_ID)
-        await review_channel.send(embed=embeds.review_embed(order, rating, self.remarks.value, interaction.user))
+        review_msg = await review_channel.send(embed=embeds.review_embed(order, rating, self.remarks.value, interaction.user))
+        await review_msg.add_reaction('❤️‍🔥')
         
         await interaction.response.send_message('✅ Thank you for your review! It means a lot to our builders. ⭐', ephemeral=True)
 
