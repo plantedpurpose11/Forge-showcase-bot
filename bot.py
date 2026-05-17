@@ -72,6 +72,7 @@ async def load_extensions():
     await bot.load_extension("cogs.review")
     await bot.load_extension("cogs.utilities")
     await bot.load_extension("cogs.moderation")
+    await bot.load_extension("cogs.sticky")
 
 async def main():
     async with bot:

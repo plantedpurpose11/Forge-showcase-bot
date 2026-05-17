@@ -92,6 +92,8 @@ class UtilityCog(commands.Cog):
             ("say", "Makes the bot repeat what you type (mod/admin only)"),
             ("changestatus", "Change the bot's status (bot owner only)"),
             ("changestatusmessage", "Change the bot's status message (bot owner only)"),
+            ("stickymessage", "Pin a message to the bottom of a channel (admin only)"),
+            ("removesticky", "Remove the sticky message from this channel (admin only)"),
         ]
         
         for cmd_name, cmd_desc in commands:
