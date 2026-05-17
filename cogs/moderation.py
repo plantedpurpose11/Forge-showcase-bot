@@ -129,27 +129,40 @@ class ModerationCog(commands.Cog):
         # Fetch messages from the channel
         ticket_channel = interaction.channel
         messages = []
-        async for message in ticket_channel.history(limit=100):
+        async for message in ticket_channel.history(limit=200):
             messages.append(message)
 
         # Sort by oldest first
         messages.reverse()
 
         # Build the transcript
-        transcript_lines = [f"## Transcript for Order #{order['orderId']} - {order['username']}'s Showcase Base"]
-        transcript_lines.append(f"**Status:** {order['status']}")
-        transcript_lines.append(f"**Townhall Level:** {order['townhallLevel']}")
-        transcript_lines.append(f"**Preferences:** {order.get('preferences', 'None')}")
-        transcript_lines.append(f"**Notes:** {order.get('notes', 'None')}")
-        transcript_lines.append(f"**Builder:** {order.get('builderUsername', 'Not assigned')}")
+        transcript_lines = [f"Transcript for Order #{order['orderId']} - {order['username']}'s Showcase Base"]
+        transcript_lines.append(f"Status: {order['status']}")
+        transcript_lines.append(f"Townhall Level: {order['townhallLevel']}")
+        transcript_lines.append(f"Preferences: {order.get('preferences', 'None')}")
+        transcript_lines.append(f"Notes: {order.get('notes', 'None')}")
+        transcript_lines.append(f"Builder: {order.get('builderUsername', 'Not assigned')}")
         transcript_lines.append("")
-        transcript_lines.append("### Messages:")
+        transcript_lines.append("--- Messages ---")
 
         for msg in messages:
             timestamp = msg.created_at.strftime("%Y-%m-%d %H:%M")
             author = msg.author.display_name
-            content = msg.content or "[embed/attachment]"
-            transcript_lines.append(f"**{timestamp}** - {author}: {content}")
+            
+            parts = []
+            if msg.content:
+                parts.append(msg.content)
+            for embed in msg.embeds:
+                if embed.title:
+                    parts.append(f"[Embed: {embed.title}]")
+                elif embed.description:
+                    desc_preview = embed.description[:100]
+                    parts.append(f"[Embed: {desc_preview}]")
+            for att in msg.attachments:
+                parts.append(f"[Attachment: {att.filename}]")
+            
+            content = " ".join(parts) if parts else "[empty message]"
+            transcript_lines.append(f"[{timestamp}] {author}: {content}")
 
         transcript = "\n".join(transcript_lines)
 
