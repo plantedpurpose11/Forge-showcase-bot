@@ -339,5 +339,66 @@ class BuilderCog(commands.Cog):
         await interaction.response.send_message(f"✅ {user.mention} has been removed from this ticket.", ephemeral=True)
         await interaction.channel.send(f"📤 {user.mention} has been removed from this ticket by {interaction.user.mention}.")
 
+    @app_commands.command(name="forceclose", description="Force closes a ticket by order ID (for when user left)")
+    @app_commands.describe(order_id="The Order ID to force close", reason="Reason for closing")
+    async def forceclose(self, interaction: discord.Interaction, order_id: int, reason: str = "Force closed by staff"):
+        if not checks.is_builder_or_mod(interaction.user):
+            await interaction.response.send_message("❌ Only base builders can use this command.", ephemeral=True)
+            return
+
+        orders = json_db.load("orders.json", [])
+        order = next((o for o in orders if o["orderId"] == order_id), None)
+
+        if not order:
+            await interaction.response.send_message(f"❌ Order #{order_id} not found.", ephemeral=True)
+            return
+
+        if order["status"] in ["completed", "removed", "closed"]:
+            await interaction.response.send_message(f"❌ Order #{order_id} is already completed, removed, or closed.", ephemeral=True)
+            return
+
+        channel_id = order.get("channelId")
+        if not channel_id:
+            # No channel exists, just close the order
+            order["status"] = "closed"
+            json_db.save("orders.json", orders)
+            await interaction.response.send_message(f"✅ Order #{order_id} marked as closed (no ticket channel existed).", ephemeral=True)
+            return
+
+        # Get the ticket channel if it still exists
+        ticket_channel = interaction.guild.get_channel(channel_id)
+
+        if ticket_channel:
+            # Save transcript before closing
+            await save_ticket_transcript(interaction, order, channel=ticket_channel)
+
+            # Try to DM the user (will fail silently if user left)
+            user = interaction.guild.get_member(int(order["userId"]))
+            if user:
+                try:
+                    await user.send(f"Hey there <@{order['userId']}>, your ticket for a showcase base has been closed.\nReason: {reason}")
+                except discord.Forbidden:
+                    pass
+            else:
+                # User has left the server - mention in the close that they left
+                await ticket_channel.send(f"⚠️ User {order['userId']} has left the server. Ticket force closed by {interaction.user.mention}.")
+
+            order["status"] = "closed"
+            json_db.save("orders.json", orders)
+
+            await interaction.response.send_message(
+                f"✅ Force closing ticket for order #{order_id}.\nReason: {reason}",
+                ephemeral=True
+            )
+
+            await asyncio.sleep(1)
+
+            await ticket_channel.delete(reason=f"Order #{order_id} force closed by {interaction.user}: {reason}")
+        else:
+            # Channel doesn't exist anymore, just close the order
+            order["status"] = "closed"
+            json_db.save("orders.json", orders)
+            await interaction.response.send_message(f"✅ Order #{order_id} marked as closed (ticket channel no longer exists).", ephemeral=True)
+
 async def setup(bot):
     await bot.add_cog(BuilderCog(bot))
